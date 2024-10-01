@@ -1,15 +1,12 @@
 USE [Pdm]
 GO
 
-/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 01/10/2024 11:29:40 am ******/
+/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 01/10/2024 12:45:24 pm ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
 
 
 CREATE PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
@@ -108,8 +105,9 @@ BEGIN
 		   AND exp_dte	 > GETDATE()
 		   AND admin_ind = 'N')
 	BEGIN
-		SELECT @err_msg = 'Authorized User "' + @admin_user + '" must be removed before being assigned as a Secure Administrator. 
+		SELECT @err_msg = 'Authorized User "' + bookname + '" must be removed before being assigned as a Secure Administrator. 
 		This project was not updated.'
+		FROM [DevelopmentEfforts].[Users] WHERE usr_acct = @admin_user
 		SET @error_code = 'INVALID_ADMINISTRATOR_ASSIGNMENT'
 	END
 
@@ -124,8 +122,9 @@ BEGIN
 		  AND exp_dte	> GETDATE()
 		  AND admin_ind	= 'Y')
 	BEGIN
-		SELECT @err_msg = 'Secure Administrator "' + @auth_user + '" must be removed before being assigned as an Authorized User. 
+		SELECT @err_msg = 'Secure Administrator "' + bookname + '" must be removed before being assigned as an Authorized User. 
 		This project was not updated.'
+		FROM [DevelopmentEfforts].[Users] WHERE usr_acct = @auth_user
 		SET @error_code = 'INVALID_AUTHORIZED_USER_ASSIGNMENT'
 	END
 
