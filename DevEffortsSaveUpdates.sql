@@ -1,7 +1,7 @@
 USE [Pdm]
 GO
 
-/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 30/09/2024 5:51:10 pm ******/
+/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 01/10/2024 10:40:00 am ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,7 +10,7 @@ GO
 
 
 
-CREATE PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
+ALTER PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
     @usr_acct       VARCHAR(8),
 	@proj_cde       VARCHAR(15),
 	@bus_unit_idn	VARCHAR(2),
@@ -27,6 +27,7 @@ BEGIN
 		   ,@err_msg     VARCHAR(8000)
 		   ,@admin_user  VARCHAR(8)
 		   ,@auth_user   VARCHAR(8)
+		   ,@error_code  VARCHAR(60)
 
     DECLARE @AdminRpt AS TABLE
     (
@@ -84,16 +85,15 @@ BEGIN
 		SET @exists_ind = 'N'
 
 	SET @err_msg = ''
+	SET @error_code = NULL
 
 	IF @function = 'Changed' AND @exists_ind = 'N'
-		SET @err_msg = '<h2 style=color:red;>Data Integrity Loss</h2>' +
-			'The project "' + @proj_cde + '" could not be found.<br> ' +
-			'This project was not updated.'
+		SET @err_msg = 'The project "' + @proj_cde + '" could not be found. This project was not updated.'
+		SET @error_code = 'DATA_INTEGRITY_ERROR'
 
 	IF @err_msg = '' AND @function = 'New' AND @exists_ind = 'Y'
-		SET @err_msg = '<h2 style=color:red;>Duplicate Project Code</h2>' +
-			'The project "' + @proj_cde + '" already exists.<br> ' +
-			'New record was not created.'
+		SET @err_msg = 'The project "' + @proj_cde + '" already exists. New record was not created.'
+		SET @error_code = 'DUPLICATE_PROJECT_CODE'
 
 	/** demoted administrator check **/
 	IF @err_msg = '' 
@@ -106,12 +106,8 @@ BEGIN
 		   AND exp_dte	 > GETDATE()
 		   AND admin_ind = 'N')
 	BEGIN
-		SELECT @err_msg = '<h2 style=color:red;>Invalid Administrator Assignment</h2>' +
-			'Authorized User "' + @admin_user + '" must be deleted from the Authorized User list<br>' +
-			'before they can be assgned as a Secure Administrator.' +
-			'<p>' +
-			'This project was not updated.'
-		/*FROM users WHERE usr_acct = @admin_slct*/
+		SELECT @err_msg = 'Authorized User "' + @admin_user + '" must be removed before being assigned as a Secure Administrator. This project was not updated.'
+		SET @error_code = 'INVALID_ADMINISTRATOR_ASSIGNMENT'
 	END
 
 	/** promoted user check **/
@@ -125,23 +121,19 @@ BEGIN
 		  AND exp_dte	> GETDATE()
 		  AND admin_ind	= 'Y')
 	BEGIN
-		SELECT @err_msg = '<h2 style=color:red;>Invalid Administrator Assignment</h2>' +
-			'Secure Administrator "' + @auth_user + '" must be deleted from the Secure<br>' +
-			'Administrator list before they can be assigned as an Authorized User.' +
-			'<p>' +
-			'This project was not updated.'
-		/*FROM users WHERE usr_acct = @auth_slct*/
+		SELECT @err_msg = 'Secure Administrator "' + @auth_user + '" must be removed before being assigned as an Authorized User. This project was not updated.'
+		SET @error_code = 'INVALID_AUTHORIZED_USER_ASSIGNMENT'
 	END
 
 	/** report error **/
 	IF @err_msg != '' 
 	BEGIN
-		IF @function = 'detail save' 
+		IF @function = 'Changed' 
 			SET @function = 'detail init'
 		ELSE
 			SET @function = 'new init'
 
-		SELECT NULL AS error, @err_msg AS err_msg
+		SELECT @error_code AS error_code, @err_msg AS error_message
 	END
 
 	SET NOCOUNT ON
