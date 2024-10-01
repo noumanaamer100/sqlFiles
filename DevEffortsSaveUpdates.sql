@@ -1,7 +1,7 @@
 USE [Pdm]
 GO
 
-/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 01/10/2024 10:40:00 am ******/
+/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 01/10/2024 11:29:40 am ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,7 +10,9 @@ GO
 
 
 
-ALTER PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
+
+
+CREATE PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
     @usr_acct       VARCHAR(8),
 	@proj_cde       VARCHAR(15),
 	@bus_unit_idn	VARCHAR(2),
@@ -106,7 +108,8 @@ BEGIN
 		   AND exp_dte	 > GETDATE()
 		   AND admin_ind = 'N')
 	BEGIN
-		SELECT @err_msg = 'Authorized User "' + @admin_user + '" must be removed before being assigned as a Secure Administrator. This project was not updated.'
+		SELECT @err_msg = 'Authorized User "' + @admin_user + '" must be removed before being assigned as a Secure Administrator. 
+		This project was not updated.'
 		SET @error_code = 'INVALID_ADMINISTRATOR_ASSIGNMENT'
 	END
 
@@ -121,7 +124,8 @@ BEGIN
 		  AND exp_dte	> GETDATE()
 		  AND admin_ind	= 'Y')
 	BEGIN
-		SELECT @err_msg = 'Secure Administrator "' + @auth_user + '" must be removed before being assigned as an Authorized User. This project was not updated.'
+		SELECT @err_msg = 'Secure Administrator "' + @auth_user + '" must be removed before being assigned as an Authorized User. 
+		This project was not updated.'
 		SET @error_code = 'INVALID_AUTHORIZED_USER_ASSIGNMENT'
 	END
 
@@ -297,8 +301,10 @@ BEGIN
 /****************************************************************************************
 **                                    Create project
 ****************************************************************************************/
+
 			IF @function = 'New' AND @exists_ind = 'N'
-				INSERT [DevelopmentEfforts].[DevelopmentEffort] (proj_cde, inactive_dte, bus_unit_idn, proj_cmnt, proj_dsc)
+				INSERT [DevelopmentEfforts].[DevelopmentEffort] 
+					(proj_cde, inactive_dte, bus_unit_idn, proj_cmnt, proj_dsc)
 					VALUES (@proj_cde, @inactive_dte, @bus_unit_idn, @proj_cmnt, @proj_dsc)
 
 			COMMIT TRAN
@@ -313,7 +319,7 @@ BEGIN
 
     SELECT '0'
         
-    IF @@error != 0 SELECT @@error as error, 'Stored procedure EcoSaveDisposition failure.' AS msg
+    IF @@error != 0 SELECT @@error as error, 'Stored procedure DevEffortsSaveUpdates failure.' AS msg
         RETURN @@error
     SET NOCOUNT OFF
 
