@@ -1,12 +1,13 @@
 USE [Pdm]
 GO
 
-/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 01/10/2024 12:45:24 pm ******/
+/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 02/10/2024 6:55:36 pm ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 CREATE PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
@@ -38,6 +39,15 @@ BEGIN
         auth_acct VARCHAR(8),
         crud_typ  VARCHAR(8)
     );
+
+
+/*******************************************************************************
+**                 Handle null values of project parameters
+*******************************************************************************/
+
+	SELECT @proj_cde= ISNULL(@proj_cde	, '')
+		,@proj_cmnt	= ISNULL(@proj_cmnt	, '')
+		,@proj_dsc	= ISNULL(@proj_dsc	, '')
 
 /*******************************************************************************
 **                    Identify users sent in from UI/ API
@@ -87,12 +97,16 @@ BEGIN
 	SET @error_code = NULL
 
 	IF @function = 'Changed' AND @exists_ind = 'N'
+	BEGIN
 		SET @err_msg = 'The project "' + @proj_cde + '" could not be found. This project was not updated.'
 		SET @error_code = 'DATA_INTEGRITY_ERROR'
+	END
 
 	IF @err_msg = '' AND @function = 'New' AND @exists_ind = 'Y'
+	BEGIN
 		SET @err_msg = 'The project "' + @proj_cde + '" already exists. New record was not created.'
 		SET @error_code = 'DUPLICATE_PROJECT_CODE'
+	END
 
 	/** demoted administrator check **/
 	IF @err_msg = '' 
