@@ -14,6 +14,8 @@ Test cases for Save Api
 - Adding auth user which is already added as secure user
 - Add secure user but it was already there as secure user
 - Add auth user but it was already there as auth user
+- Add a secure user which is already added as secure user
+- Add a auth user which is already added as auth user
 - Deleting one user
 - Deleting multiple users
 - Deleting secure and auth user at the same time
@@ -33,11 +35,24 @@ DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'P8',
     @inactive_dte = '2024-10-20 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure',
     @proj_dsc = 'Testing',
+    @function = 'New',
+    @users = @userTable;
+
+/*Creating a new project in which description and comment are null*/
+DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
+
+EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
+    @usr_acct = '12284717',
+    @proj_cde = 'TestSP2',
+    @bus_unit_idn = 'P8',
+    @inactive_dte = '2024-10-20 00:00:00.000',
+    @proj_cmnt = '',
+    @proj_dsc = null,
     @function = 'New',
     @users = @userTable;
 
@@ -46,11 +61,11 @@ DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'P8',
     @inactive_dte = '2024-10-20 00:00:00.000',
-    @proj_cmnt = 'Testing Stored Procedure',
-    @proj_dsc = 'Testing',
+    @proj_cmnt = 'Testing Stored Procedures',
+    @proj_dsc = 'Testingg',
     @function = 'New',
     @users = @userTable;
 
@@ -59,12 +74,12 @@ DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'P8',
     @inactive_dte = '2024-10-20 00:00:00.000',
-    @proj_cmnt = 'Testing Stored Procedure update',
-    @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @proj_cmnt = 'Testing Stored Procedure updated',
+    @proj_dsc = 'Testing updated',
+    @function = 'Update',
     @users = @userTable;
 
 /*Updating a project which has project details only (Updating business unit this time)*/
@@ -72,12 +87,12 @@ DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Updating a project which does not exist in DB*/
@@ -90,13 +105,13 @@ EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Adding a secure user to a project which does not exist in DB*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('New', '12284717', 1);
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
@@ -106,83 +121,81 @@ EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Adding a secure user to a project*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
-VALUES ('New', '12231602', 1);
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
+VALUES ('New', '12284718', 1);
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Adding an auth user to a project*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('New', '12098375', 0);
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Delete secure user*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
-VALUES ('Deleted', '12219139', 1),
-	   ('Deleted', '12231603', 1),
-	   ('Deleted', '12231602', 1);
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
+VALUES ('Deleted', '12231602', 1);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Delete auth user*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('Deleted', '12219139', 0),
 	   ('Deleted', '12231603', 0),
-	   ('Deleted', '12231602', 0);
+	   ('Deleted', '12098375', 0);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Delete secure and auth user*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('Deleted', '12219139', 0),
 	   ('Deleted', '12231603', 0),
 	   ('Deleted', '12284718', 1);
@@ -190,88 +203,87 @@ VALUES ('Deleted', '12219139', 0),
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Adding secure user but that user is already as auth user*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('New', '12231602', 1);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Adding auth user but that user is already as secure user*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
-VALUES ('New', '12284718', 0);
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
+VALUES ('New', '12284717', 0);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Confirm a secure user*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
-VALUES ('Changed', '12284718', 1);
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
+VALUES ('Changed', '12284717', 1);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Confirm multiple users*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('Changed', '12284717', 1),
-	   ('Changed', '12098375', 0),
 	   ('Changed', '12231602', 0);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Add new user, delete user and confirm user at the same time*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('Deleted', '12098375', 0),
 	   ('Deleted', '12231602', 0),
 	   ('Changed', '12284717', 1),
@@ -281,18 +293,18 @@ VALUES ('Deleted', '12098375', 0),
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'XI',
     @inactive_dte = '2024-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 /*Make every possible change at the same time*/
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
-INSERT INTO @userTable ([action], [user_account], [secure_admin])
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('Deleted', '12098375', 0),
 	   ('Deleted', '12231602', 1),
 	   ('Changed', '12231602', 1),
@@ -302,12 +314,12 @@ VALUES ('Deleted', '12098375', 0),
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP',
+    @proj_cde = 'TestSP1',
     @bus_unit_idn = 'L6',
     @inactive_dte = '2024-11-24 00:00:00.000',
     @proj_cmnt = 'Stored Procedure final change...',
     @proj_dsc = 'Testing SP',
-    @function = 'Changed',
+    @function = 'Update',
     @users = @userTable;
 
 

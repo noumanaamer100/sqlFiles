@@ -1,13 +1,12 @@
 USE [Pdm]
 GO
 
-/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 02/10/2024 6:55:36 pm ******/
+/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 08/10/2024 3:41:27 pm ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
 
 
 CREATE PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
@@ -57,31 +56,31 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM @users)
 	BEGIN
 		INSERT @AdminRpt (admn_acct, crud_typ)
-		SELECT NULLIF(user_account, '')
+		SELECT NULLIF(userAcct, '')
 			  ,NULLIF(action, '')
 		FROM @users
-		WHERE secure_admin = 1
+		WHERE isSecureUser = 1
 	END
 
 	/** user account for newly added admin user **/
 	SELECT TOP 1 @admin_user = admn_acct
     FROM @AdminRpt
-    WHERE crud_typ = 'New';
+    WHERE UPPER(crud_typ) = 'NEW';
 
 	/** load authorized user report data **/
 	IF EXISTS (SELECT 1 FROM @users)
 	BEGIN
 		INSERT @AuthRpt (auth_acct, crud_typ)
-		SELECT NULLIF(user_account	, '')
+		SELECT NULLIF(userAcct	, '')
 			  ,NULLIF(action	, '')
 		FROM @users
-		WHERE secure_admin = 0
+		WHERE isSecureUser = 0
 	END
 
 	/** user account for newly added auth user **/
 	SELECT TOP 1 @auth_user = auth_acct
     FROM @AuthRpt
-    WHERE crud_typ = 'New';
+    WHERE UPPER(crud_typ) = 'NEW';
 
 /*********************************************************************************
 **                              Validate data
@@ -96,13 +95,13 @@ BEGIN
 	SET @err_msg = ''
 	SET @error_code = NULL
 
-	IF @function = 'Changed' AND @exists_ind = 'N'
+	IF UPPER(@function) = 'UPDATE' AND @exists_ind = 'N'
 	BEGIN
 		SET @err_msg = 'The project "' + @proj_cde + '" could not be found. This project was not updated.'
 		SET @error_code = 'DATA_INTEGRITY_ERROR'
 	END
 
-	IF @err_msg = '' AND @function = 'New' AND @exists_ind = 'Y'
+	IF @err_msg = '' AND UPPER(@function) = 'NEW' AND @exists_ind = 'Y'
 	BEGIN
 		SET @err_msg = 'The project "' + @proj_cde + '" already exists. New record was not created.'
 		SET @error_code = 'DUPLICATE_PROJECT_CODE'
@@ -145,7 +144,7 @@ BEGIN
 	/** report error **/
 	IF @err_msg != '' 
 	BEGIN
-		IF @function = 'Changed' 
+		IF UPPER(@function) = 'UPDATE'
 			SET @function = 'detail init'
 		ELSE
 			SET @function = 'new init'
@@ -162,7 +161,7 @@ BEGIN
 **                                  Update project
 ****************************************************************************************/
 
-			IF @function = 'Changed' AND @exists_ind = 'Y'
+			IF UPPER(@function) = 'UPDATE' AND @exists_ind = 'Y'
 			BEGIN
 				UPDATE [DevelopmentEfforts].[DevelopmentEffort]
 				SET  inactive_dte	= @inactive_dte
@@ -222,7 +221,7 @@ BEGIN
 				FROM [DevelopmentEfforts].[DevelopmentEffortSecure] AS admin
 				JOIN @AdminRpt AS rpt 
 				ON rpt.admn_acct = admin.usr_acct
-				AND rpt.crud_typ  = 'Changed'
+				AND UPPER(rpt.crud_typ)  = 'CHANGED'
 				WHERE admin.proj_cde = @proj_cde
 				AND admin.admin_ind = 'Y'
 
@@ -235,7 +234,7 @@ BEGIN
 				FROM [DevelopmentEfforts].[DevelopmentEffortSecure] AS admin
 				JOIN @AdminRpt AS rpt 
 				ON rpt.admn_acct = admin.usr_acct
-				AND rpt.crud_typ  = 'Deleted'
+				AND UPPER(rpt.crud_typ)  = 'DELETED'
 				WHERE admin.proj_cde = @proj_cde
 				AND admin.admin_ind = 'Y'
 
@@ -295,7 +294,7 @@ BEGIN
 				FROM [DevelopmentEfforts].[DevelopmentEffortSecure] AS auth
 				JOIN @AuthRpt AS rpt 
 				  ON rpt.auth_acct = auth.usr_acct
-				 AND rpt.crud_typ  = 'Changed'
+				 AND UPPER(rpt.crud_typ)  = 'CHANGED'
 				WHERE auth.proj_cde = @proj_cde
 
 				/** delete authorized user **/
@@ -307,7 +306,7 @@ BEGIN
 				FROM [DevelopmentEfforts].[DevelopmentEffortSecure] AS auth
 				JOIN @AuthRpt AS rpt 
 				  ON rpt.auth_acct = auth.usr_acct
-				 AND rpt.crud_typ  = 'Deleted'
+				 AND UPPER(rpt.crud_typ)  = 'DELETED'
 				WHERE auth.proj_cde = @proj_cde
 			END
 
@@ -315,7 +314,7 @@ BEGIN
 **                                    Create project
 ****************************************************************************************/
 
-			IF @function = 'New' AND @exists_ind = 'N'
+			IF UPPER(@function) = 'NEW' AND @exists_ind = 'N'
 				INSERT [DevelopmentEfforts].[DevelopmentEffort] 
 					(proj_cde, inactive_dte, bus_unit_idn, proj_cmnt, proj_dsc)
 					VALUES (@proj_cde, @inactive_dte, @bus_unit_idn, @proj_cmnt, @proj_dsc)
