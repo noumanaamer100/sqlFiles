@@ -144,13 +144,13 @@ EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
 DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
 
 INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
-VALUES ('New', '12098375', 0);
+VALUES ('New', '12284717', 0);
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
     @usr_acct = '12284717',
-    @proj_cde = 'TestSP1',
+    @proj_cde = 'testNew',
     @bus_unit_idn = 'XI',
-    @inactive_dte = '2024-10-24 00:00:00.000',
+    @inactive_dte = '2025-10-24 00:00:00.000',
     @proj_cmnt = 'Testing Stored Procedure update',
     @proj_dsc = 'Testing update',
     @function = 'Update',
@@ -199,6 +199,24 @@ INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
 VALUES ('Deleted', '12219139', 0),
 	   ('Deleted', '12231603', 0),
 	   ('Deleted', '12284718', 1);
+	   
+
+EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]
+    @usr_acct = '12284717',
+    @proj_cde = 'TestSP1',
+    @bus_unit_idn = 'XI',
+    @inactive_dte = '2024-10-24 00:00:00.000',
+    @proj_cmnt = 'Testing Stored Procedure update',
+    @proj_dsc = 'Testing update',
+    @function = 'Update',
+    @users = @userTable;
+
+/*Deleting a user and adding same user in same grid in same request*/
+DECLARE @userTable [DevelopmentEfforts].[DevEffortsUsersUDT];
+
+INSERT INTO @userTable ([action], [userAcct], [isSecureUser])
+VALUES ('Deleted', '12219139', 0),
+	   ('New', '12219139', 0);
 	   
 
 EXEC [DevelopmentEfforts].[DevEffortsSaveUpdates]

@@ -1,12 +1,13 @@
 USE [Pdm]
 GO
 
-/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 08/10/2024 3:41:27 pm ******/
+/****** Object:  StoredProcedure [DevelopmentEfforts].[DevEffortsSaveUpdates]    Script Date: 07/11/2024 4:57:11 pm ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 CREATE PROCEDURE [DevelopmentEfforts].[DevEffortsSaveUpdates] (
@@ -185,7 +186,7 @@ BEGIN
 					BEGIN
 						UPDATE [DevelopmentEfforts].[DevelopmentEffortSecure]
 						SET  admin_ind	= 'Y'
-							,exp_dte	= DATEADD(mm, 3, GETDATE())
+							,exp_dte	= DATEADD(mm, 6, GETDATE())
 							,mod_dte	= GETDATE()
 							,mod_acct	= @usr_acct
 						WHERE proj_cde = @proj_cde
@@ -204,7 +205,7 @@ BEGIN
 						SELECT @proj_cde
 							,@admin_user AS usr_acct
 							,'Y'         AS admin_ind
-							,DATEADD(mm, 3, GETDATE()) AS exp_dte
+							,DATEADD(mm, 6, GETDATE()) AS exp_dte
 							,GETDATE()   AS cre_dte
 							,@usr_acct   AS cre_acct
 							,GETDATE()   AS mod_dte
@@ -215,7 +216,7 @@ BEGIN
 				/** confirm administrator **/
 				UPDATE [DevelopmentEfforts].[DevelopmentEffortSecure]
 				SET  admin_ind	= 'Y'
-					,exp_dte	= DATEADD(mm, 3, GETDATE())
+					,exp_dte	= DATEADD(mm, 6, GETDATE())
 					,mod_dte	= GETDATE()
 					,mod_acct	= @usr_acct
 				FROM [DevelopmentEfforts].[DevelopmentEffortSecure] AS admin
@@ -256,7 +257,7 @@ BEGIN
 						SET  admin_ind	= 'N'
 							,mod_dte	= GETDATE()
 							,mod_acct	= @usr_acct
-							,exp_dte	= DATEADD(mm, 3, GETDATE())
+							,exp_dte	= DATEADD(mm, 6, GETDATE())
 						WHERE proj_cde = @proj_cde
 						AND usr_acct = @auth_user
 					END ELSE BEGIN
@@ -277,7 +278,7 @@ BEGIN
 							,@usr_acct   AS cre_acct
 							,GETDATE()   AS mod_dte
 							,@usr_acct   AS mod_acct
-							,DATEADD(mm, 3, GETDATE()) AS exp_dte
+							,DATEADD(mm, 6, GETDATE()) AS exp_dte
 					END
 				END
 
@@ -288,7 +289,7 @@ BEGIN
 
 				UPDATE [DevelopmentEfforts].[DevelopmentEffortSecure]
 				SET  admin_ind	= 'N'
-					,exp_dte  = DATEADD(mm, 3, GETDATE())
+					,exp_dte  = DATEADD(mm, 6, GETDATE())
 					,mod_dte  = GETDATE()
 					,mod_acct = @usr_acct
 				FROM [DevelopmentEfforts].[DevelopmentEffortSecure] AS auth

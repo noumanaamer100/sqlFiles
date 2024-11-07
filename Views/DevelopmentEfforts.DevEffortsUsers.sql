@@ -1,7 +1,7 @@
 USE [Pdm]
 GO
 
-/****** Object:  View [DevelopmentEfforts].[Users]    Script Date: 01/10/2024 12:47:22 pm ******/
+/****** Object:  View [DevelopmentEfforts].[DevEffortsUsers]    Script Date: 07/11/2024 4:46:38 pm ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,10 +10,7 @@ GO
 
 
 
-------------------------------------
---create view
-------------------------------------
-CREATE   VIEW [DevelopmentEfforts].[Users]
+CREATE	VIEW [DevelopmentEfforts].[DevEffortsUsers]
 AS 
 	SELECT 
 	wwid
@@ -36,7 +33,7 @@ AS
 	,intel_ste_cde
 	,lst_login_dte
 	,bus_unit_idn		
-    FROM speed_2max.[dbo].[users]
+    FROM [speed_2max].[dbo].[users]
 GO
 
 
